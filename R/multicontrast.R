@@ -1,3 +1,11 @@
+#' Give conservative confidence intervals for simultaneous contrasts
+
+#' @param model An object of class 'lm'.
+#' @param varname Name of the factor.
+#' @param coeff_mx Matrix of contrasts. One row per contrast.
+#' @param conf_int Family-wise confidence level
+
+#' @export
 multicontrast <- function(model, varname, coeff_mx, conf_int = 0.95) {
   if(!is.matrix(coeff_mx)) {
     coeff_mx <- matrix(coeff_mx, nrow=1)
@@ -27,30 +35,32 @@ bonferroni_ints <- function(model, varname, coeff_mx, conf_int) {
   intervals_bonf
 }
 
-scheffe_apply <- function(l, M, mu, C) {
+scheffe_apply <- function(l, M, sigma, mu, C) {
   # Give the Scheffe bound for the vector l of coefficients.
   eta_hat <- t(l) %*% mu
-  radius <- M * sigma(one_way_mean) * sqrt(t(l) %*% C %*% l)
+  radius <- M * sigma * sqrt(t(l) %*% C %*% l)
   c(lower = eta_hat - radius, upper = eta_hat + radius, length = 2 * radius)
 }
 
 scheffe_ints <- function(model, varname, coeff_mx, conf_int) {
   # First, fit the mean model to get the correct design matrix
   mean_call <- model$call
-  mean_call$formula <- formula(paste(deparse(formula(model)), "- 1"))
+  mean_call$formula <- stats::formula(
+                                paste(deparse(stats::formula(model)), "- 1"))
   mean_model <- eval(mean_call)
 
   # Determine Scheffe intervals
   nfactors <- length(mean_model$xlevels[[varname]])
-  nobs <- length(resid(mean_model))
-  scheffeM <- sqrt(nfactors * qf(conf_int, nfactors, nobs - nfactors))
-  a <- model.matrix(mean_model)
+  nobs <- length(stats::resid(mean_model))
+  scheffeM <- sqrt(nfactors * stats::qf(conf_int, nfactors, nobs - nfactors))
+  a <- stats::model.matrix(mean_model)
   C <- solve(t(a) %*% a)
-  means <- matrix(coef(mean_model))
+  means <- matrix(stats::coef(mean_model))
 
   result <- matrix(nrow = nrow(coeff_mx), ncol = 3)
   for(i in 1:nrow(coeff_mx)) {
-    result[i, ] <- scheffe_apply(coeff_mx[i, ], scheffeM, means, C)
+    result[i, ] <- scheffe_apply(coeff_mx[i, ], scheffeM,
+                                 stats::sigma(mean_model), means, C)
   }
   colnames(result) <- c("lower", "upper", "length")
 
