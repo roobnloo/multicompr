@@ -7,6 +7,10 @@
 
 #' @export
 multicontrast <- function(model, varname, coeff_mx, conf_int = 0.95) {
+  if(!any(class(model) == 'lm')) {
+    stop("Only 'lm' objects are supported for now.")
+  }
+
   if(!is.matrix(coeff_mx)) {
     coeff_mx <- matrix(coeff_mx, nrow=1)
   }
