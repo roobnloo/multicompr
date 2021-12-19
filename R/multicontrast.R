@@ -7,12 +7,12 @@
 
 #' @export
 multicontrast <- function(model, varname, coeff_mx, conf_int = 0.95) {
-  if(!any(class(model) == 'lm')) {
+  if (!any(class(model) == "lm")) {
     stop("Only 'lm' objects are supported for now.")
   }
 
-  if(!is.matrix(coeff_mx)) {
-    coeff_mx <- matrix(coeff_mx, nrow=1)
+  if (!is.matrix(coeff_mx)) {
+    coeff_mx <- matrix(coeff_mx, nrow = 1)
   }
 
   intervals_bonf <- bonferroni_ints(model, varname, coeff_mx, conf_int)
@@ -20,7 +20,8 @@ multicontrast <- function(model, varname, coeff_mx, conf_int = 0.95) {
 
   result <- array(c(intervals_bonf, intervals_scheffe),
                   dim = c(nrow(coeff_mx), 3, 2))
-  dimnames(result) <- list(rep("", nrow(coeff_mx)), c("lower", "upper", "length"),
+  dimnames(result) <- list(rep("", nrow(coeff_mx)),
+                           c("lower", "upper", "length"),
                            c("Bonferroni", "Scheffe"))
 
   result
@@ -32,7 +33,7 @@ bonferroni_ints <- function(model, varname, coeff_mx, conf_int) {
   bonf_conf <- 1 - (1 - conf_int) / nrow(coeff_mx)
   gfit <- gmodels::fit.contrast(model, varname, coeff_mx, conf.int = bonf_conf)
   intervals_bonf <- gfit[, c("lower CI", "upper CI")]
-  intervals_bonf = cbind(intervals_bonf,
+  intervals_bonf <- cbind(intervals_bonf,
                          intervals_bonf[, 2] - intervals_bonf[, 1])
   colnames(intervals_bonf) <- c("lower", "upper", "length")
 
@@ -62,7 +63,7 @@ scheffe_ints <- function(model, varname, coeff_mx, conf_int) {
   means <- matrix(stats::coef(mean_model))
 
   result <- matrix(nrow = nrow(coeff_mx), ncol = 3)
-  for(i in 1:nrow(coeff_mx)) {
+  for (i in seq_len(nrow(coeff_mx))) {
     result[i, ] <- scheffe_apply(coeff_mx[i, ], scheffeM,
                                  stats::sigma(mean_model), means, C)
   }

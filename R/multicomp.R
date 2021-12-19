@@ -19,8 +19,8 @@ shortest_intervals <- function(x) {
   }
 
   result_df <- data.frame(result)
-  colnames(result_df) <- colnames(mc)
-  result_df$source <- names(x[1, 1,])[idx]
+  colnames(result_df) <- colnames(x)
+  result_df$source <- names(x[1, 1, ])[idx]
   result_df
 }
 
