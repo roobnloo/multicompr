@@ -1,10 +1,13 @@
-multicomp <- function(x, conf_int) {
-  validate_multicomp(new_multicomp(x, conf_int))
+multicomp <- function(model, x, conf_int) {
+  validate_multicomp(new_multicomp(model, x, conf_int))
 }
 
-new_multicomp <- function(x, conf_int) {
+new_multicomp <- function(model, x, conf_int) {
   stopifnot(is.array(x))
-  result <- list(all = x, shortest = shortest_intervals(x), conf_int = conf_int)
+  result <- list(all = x,
+                 shortest = shortest_intervals(x),
+                 model = model,
+                 conf_int = conf_int)
   structure(
     result,
     class = "multicomp"
@@ -33,4 +36,18 @@ validate_multicomp <- function(x) {
   }
 
   x
+}
+
+#' @export
+print.multicomp <- function(x, ...) {
+  cat("\nCall:\n",
+      paste(deparse(x$model$call), sep = "\n", collapse = "\n"),
+      "\n\n", sep = "")
+  cat(paste0("Shortest ", x$conf_int * 100, "% intervals:"), "\n")
+  print(x$shortest)
+}
+
+#' @export
+summary.multicomp <- function(object, ...) {
+  print.multicomp(object, ...)
 }

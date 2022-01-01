@@ -24,7 +24,7 @@ multicontrast <- function(model, varname, coeff_mx, conf_int = 0.95) {
                            c("lower", "upper", "length"),
                            c("Bonferroni", "Scheffe"))
 
-  multicomp(result, conf_int)
+  multicomp(model, result, conf_int)
 }
 
 bonferroni_ints <- function(model, varname, coeff_mx, conf_int) {
