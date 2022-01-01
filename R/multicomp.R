@@ -1,10 +1,10 @@
-multicomp <- function(x) {
-  validate_multicomp(new_multicomp(x))
+multicomp <- function(x, conf_int) {
+  validate_multicomp(new_multicomp(x, conf_int))
 }
 
-new_multicomp <- function(x) {
+new_multicomp <- function(x, conf_int) {
   stopifnot(is.array(x))
-  result <- list(all = x, shortest = shortest_intervals(x))
+  result <- list(all = x, shortest = shortest_intervals(x), conf_int = conf_int)
   structure(
     result,
     class = "multicomp"
